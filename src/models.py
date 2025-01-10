@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Dict, List, Optional
 
 from charms.istio_beacon_k8s.v0.service_mesh import Method
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 # Global metadata schema
@@ -61,7 +61,7 @@ class Action(str, Enum):
 
 
 class PolicyTargetReference(BaseModel):
-    """PolicyTargetReference defines the target of the policy."""
+    """PolicyTargetReference defines the target of the policy for waypoint bound policies."""
 
     group: str
     kind: str
@@ -70,7 +70,7 @@ class PolicyTargetReference(BaseModel):
 
 
 class WorkloadSelector(BaseModel):
-    """WorkloadSelector defines the selector for the policy."""
+    """WorkloadSelector defines the target of the policy for ztunnel bound policies."""
 
     matchLabels: Dict[str, str]
 
@@ -130,8 +130,13 @@ class AuthorizationPolicySpec(BaseModel):
     """AuthorizationPolicyResource defines the structure of an Istio AuthorizationPolicy Kubernetes resource."""
 
     action: Action = Action.allow
-    targetRefs: List[PolicyTargetReference]
+    targetRefs: Optional[List[PolicyTargetReference]] = Field(default=None)
+    selector: Optional[WorkloadSelector] = Field(default=None)
     rules: List[Rule]
-    # Not implemented, but it exists
-    # selector: WorkloadSelector
-    # provider
+
+    @model_validator(mode="after")
+    def validate_target(self):
+        """Validate that at most one of targetRefs and selector is defined."""
+        if self.targetRefs is not None and self.selector is not None:
+            raise ValueError("At most one of targetRefs and selector can be set")
+        return self

@@ -7,3 +7,4 @@ __pycache__/
 *.py[cod]
 .idea
 .vscode/
+tests/integration/testers/service-mesh-tester/lib/*
