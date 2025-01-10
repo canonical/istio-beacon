@@ -160,6 +160,6 @@ def assert_request_returns_http_code(
         f"Got {returned_code} for {source_unit} -> {target_url} on {method} - expected {code}"
     )
 
-    assert (
-        returned_code == code
-    ), f"Expected {code} but got {returned_code} for {source_unit} -> {target_url} on {method}"
+    assert returned_code == code, (
+        f"Expected {code} but got {returned_code} for {source_unit} -> {target_url} on {method}"
+    )

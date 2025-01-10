@@ -117,7 +117,7 @@ from ops import CharmBase, Object, Relation
 
 LIBID = "3f40cb7e3569454a92ac2541c5ca0a0c"  # Never change this
 LIBAPI = 0
-LIBPATCH = 1
+LIBPATCH = 2
 
 PYDEPS = ["lightkube", "pydantic"]
 
@@ -336,7 +336,7 @@ class ServiceMeshConsumer(Object):
                     # The label was previously set. Setting it to None will delete it.
                     labels[label] = None
         if stateful_set.spec:
-            stateful_set.spec.template.metadata.labels.update(labels)
+            stateful_set.spec.template.metadata.labels.update(labels)  # type: ignore
         config_map.data = {"labels": json.dumps(labels)}
         client.patch(res=ConfigMap, name=self._label_configmap_name, obj=config_map)
         client.patch(res=StatefulSet, name=self._charm.app.name, obj=stateful_set)
